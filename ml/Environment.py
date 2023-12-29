@@ -3,26 +3,9 @@ class Environment():
     def __init__(self) -> None:                                                                        
         self.action_space = [["UP"], ["DOWN"], ["LEFT"], ["RIGHT"],["NONE"]]
         self.n_actions = len(self.action_space)
-
-           
-        
-                       
-        
-        
-
-
-        
+                                          
         self.pre_reward = 0
-        
-        # 遊戲參數
-        self.max_episode = 5000   # 執行最大回合數
-        self.episode_ctr = 0      # 執行回合數
-        self.step_ctr = 0         # 
-        # keep_training = True      # 是否接續上次訓練
-        
-        
-        # if not keep_training:
-        #     self.QT.q_table.to_pickle('.\\qtable.pickle')
+    
         
     def set_scene_info(self, Scene_info):
         self.scene_info = Scene_info        

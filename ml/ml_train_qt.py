@@ -9,9 +9,10 @@ class MLPlay:
         self.action = self.env.action
         self.state = [self.env.observation]    
         self.state_ = [self.env.observation]   
+        self.status = "GAME_ALIVE"         # 遊戲狀態預設開啟    
         
         self.QT = QLearningTable(actions=list(range(self.env.n_actions)))
-
+        
 
         
         print("Initial ml script")
