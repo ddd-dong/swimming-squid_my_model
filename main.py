@@ -17,7 +17,7 @@ if __name__ == '__main__':
         pygame.time.Clock().tick_busy_loop(FPS)
         commands = game.get_keyboard_command()
         game.update(commands)
-        game_progress_data = game.get_scene_progress_data()
+        game_progress_data = game.get_scene_progress_data()        
         game_view.draw(game_progress_data)
         frame_count += 1
         # print(frame_count)
