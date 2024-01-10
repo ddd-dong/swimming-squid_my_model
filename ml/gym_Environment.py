@@ -11,9 +11,7 @@ import json
 
 class Environment(gym.Env):    
     def __init__(self) -> None:
-        super(Environment, self).__init__()
-        
-        self.action_space = spaces.Discrete(5)        
+        super(Environment, self).__init__()                   
         
         self.observation_space = spaces.Dict(
             {
@@ -22,7 +20,10 @@ class Environment(gym.Env):
             }
         )
         
-        print(self.observation_space.sample())
+        self.action_space = spaces.Discrete(5)     
+        
+        self.action_mapping =  [["UP"], ["DOWN"], ["LEFT"], ["RIGHT"],["NONE"]]
+
         self.pre_reward = 0
         self.state = 0
         self.scene_info = { "frame": 0, "score": 0, "score_to_pass": 0, "squid_x": 0, "squid_y": 0, "squid_h": 1, "squid_w": 1, "squid_lv": 1, "squid_vel": 1, "status": "GAME_ALIVE", "foods": [ ]}
@@ -30,7 +31,7 @@ class Environment(gym.Env):
         self.observation = 0
         
         self.client = GameClient()        
-        self.client.send_data({"command": 4})
+        self.client.send_data({"command": self.action_mapping.index(["NONE"])})
         self.client.start()
           
     def step(self, action):              
@@ -56,7 +57,7 @@ class Environment(gym.Env):
         return observation, reward, terminated, truncated, info
     
     def reset(self, seed=None, options=None):            
-        self.client.send_data({"command": 4})
+        self.client.send_data({"command": self.action_mapping.index(["NONE"])})
         self.scene_info = self.__get_scene_info()
         observation = self.__get_obs(self.scene_info)
         

@@ -3,8 +3,8 @@ from collections import OrderedDict
 
 class Environment():
     def __init__(self) -> None:                                                                        
-        self.action_space = [["UP"], ["DOWN"], ["LEFT"], ["RIGHT"],["NONE"]]
-        self.n_actions = len(self.action_space)
+        self.action_mapping = [["UP"], ["DOWN"], ["LEFT"], ["RIGHT"],["NONE"]]
+        self.n_actions = len(self.action_mapping)
         
         self.action = 0 
         self.observation = 0
