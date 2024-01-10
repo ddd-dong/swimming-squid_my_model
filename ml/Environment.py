@@ -1,4 +1,6 @@
 import math
+from collections import OrderedDict
+
 class Environment():
     def __init__(self) -> None:                                                                        
         self.action_space = [["UP"], ["DOWN"], ["LEFT"], ["RIGHT"],["NONE"]]
@@ -73,7 +75,7 @@ class Environment():
         food_direction = self.__get_direction_to_nearest(squid_pos, all_food_pos) if all_food_pos else 0
         garbage_direction = self.__get_direction_to_nearest(squid_pos, all_garbage_pos) if all_garbage_pos else 0
 
-        return [food_direction, garbage_direction]
+        return OrderedDict([('food_direction', food_direction), ('garbage_direction', garbage_direction)])
     
     def __get_reward(self, action: int , observation: int):
         """

@@ -3,6 +3,7 @@ import gymnasium as gym
 import numpy as np
 from gymnasium import spaces
 import math
+from collections import OrderedDict
 
 import socket
 import threading
@@ -12,10 +13,16 @@ class Environment(gym.Env):
     def __init__(self) -> None:
         super(Environment, self).__init__()
         
-        self.action_space = spaces.Discrete(5)
-        self.observation_space = spaces.Discrete(25)
+        self.action_space = spaces.Discrete(5)        
         
+        self.observation_space = spaces.Dict(
+            {
+                "food_direction" : spaces.Discrete(5),
+                "garbage_direction" : spaces.Discrete(5)
+            }
+        )
         
+        print(self.observation_space.sample())
         self.pre_reward = 0
         self.state = 0
         self.scene_info = { "frame": 0, "score": 0, "score_to_pass": 0, "squid_x": 0, "squid_y": 0, "squid_h": 1, "squid_w": 1, "squid_lv": 1, "squid_vel": 1, "status": "GAME_ALIVE", "foods": [ ]}
@@ -45,7 +52,7 @@ class Environment(gym.Env):
         
         
         info = {}
-        # print(observation)
+        
         return observation, reward, terminated, truncated, info
     
     def reset(self, seed=None, options=None):            
@@ -87,7 +94,8 @@ class Environment(gym.Env):
         food_direction = self.__get_direction_to_nearest(squid_pos, all_food_pos) if all_food_pos else 0
         garbage_direction = self.__get_direction_to_nearest(squid_pos, all_garbage_pos) if all_garbage_pos else 0
 
-        return food_direction * 5 + garbage_direction        
+        return OrderedDict([('food_direction', food_direction), ('garbage_direction', garbage_direction)])
+        
 
     # 設定reward
     ### to do
