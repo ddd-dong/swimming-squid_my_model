@@ -1,58 +1,72 @@
+from typing import Any
+import gymnasium as gym
+import numpy as np
+from gymnasium import spaces
 import math
-class Environment():
-    def __init__(self) -> None:                                                                        
-        self.action_space = [["UP"], ["DOWN"], ["LEFT"], ["RIGHT"],["NONE"]]
-        self.n_actions = len(self.action_space)
+
+import socket
+import threading
+import json
+
+class Environment(gym.Env):    
+    def __init__(self) -> None:
+        super(Environment, self).__init__()
         
-        self.action = 0 
-        self.observation = 0
+        self.action_space = spaces.Discrete(5)
+        self.observation_space = spaces.Discrete(25)
+        
+        
         self.pre_reward = 0
-    
-    def set_scene_info(self, Scene_info: dict):
-        """
-        Stores the given scene information into the environment.
-
-        Parameters:
-        scene_info (dict): A dictionary containing environment information.
-        """
-        self.scene_info = Scene_info        
-    
-    def reset(self):
-        """
-        Resets the environment and returns the initial observation.
-
-        Returns:
-        observation: The initial state of the environment after reset.
-        """
-        observation = self.__get_obs(self.scene_info)
-
-        return observation
-    
-    def step(self, action: int):   
-        """
-        Executes a given action in the environment and returns the resulting state.
-
-        Parameters:
-        action (int): The action to be performed, representing the squid's movement.
-
-        Returns:
-        observation: The current state of the environment after the action.
-        reward (int): The reward obtained as a result of performing the action.
-        done (bool): Indicates whether the game has ended (True if ended, False otherwise).
-        info (dict): Additional information about the current state.
-        """
+        self.state = 0
+        self.scene_info = { "frame": 0, "score": 0, "score_to_pass": 0, "squid_x": 0, "squid_y": 0, "squid_h": 1, "squid_w": 1, "squid_lv": 1, "squid_vel": 1, "status": "GAME_ALIVE", "foods": [ ]}
+        self.action = 0
+        self.observation = 0
+        
+        self.client = GameClient()        
+        self.client.send_data({"command": 4})
+        self.client.start()
+          
+    def step(self, action):              
         reward = 0
-        observation = self.__get_obs(self.scene_info)                  
+        
+        self.client.send_data({"command": int(action)})
+        scene_info = self.__get_scene_info()
+        observation = self.__get_obs(scene_info)
         
         reward = self.__get_reward(action, observation)
-                
-        done = self.scene_info["status"] != "GAME_ALIVE"            
-
+        
+        if self.scene_info["status"] != "GAME_ALIVE":
+            terminated = 1
+            
+        else:
+            terminated = 0
+        truncated = 0
+  
+        
+        
         info = {}
-
-        return observation, reward, done, info
+        # print(observation)
+        return observation, reward, terminated, truncated, info
     
-    def __get_obs(self, scene_info):
+    def reset(self, seed=None, options=None):            
+        self.client.send_data({"command": 4})
+        self.scene_info = self.__get_scene_info()
+        observation = self.__get_obs(self.scene_info)
+        
+        
+        info = {}        
+        return observation, info
+    
+    def __get_scene_info(self):
+        while True:
+            if self.client.data != None:
+                scene_info = self.client.data
+                self.client.data = None
+                return scene_info
+
+    # 設定Observation
+    ### to do            
+    def __get_obs(self, scene_info):                                             
         """
         Processes the environmental information to generate an observation.
 
@@ -73,8 +87,10 @@ class Environment():
         food_direction = self.__get_direction_to_nearest(squid_pos, all_food_pos) if all_food_pos else 0
         garbage_direction = self.__get_direction_to_nearest(squid_pos, all_garbage_pos) if all_garbage_pos else 0
 
-        return food_direction * 5 + garbage_direction
-    
+        return food_direction * 5 + garbage_direction        
+
+    # 設定reward
+    ### to do
     def __get_reward(self, action: int , observation: int):
         """
         Calculates the reward based on the given action and observation.
@@ -89,7 +105,7 @@ class Environment():
         reward = self.scene_info["score"] - self.pre_reward
         self.pre_reward = self.scene_info["score"]
         return reward
-        
+
     def __calculate_distance(self, point1: list, point2: list)->float:
         """
         Calculates the Euclidean distance between two points.
@@ -156,7 +172,7 @@ class Environment():
                 return 3  # Down
             else:
                 return 4  # Left
-    
+            
     def __get_direction_to_nearest(self, squid_pos: list, items_pos: list) -> int:
         """
         Determines the direction of the nearest item from the squid's position.
@@ -177,3 +193,39 @@ class Environment():
         if closest_item_pos is not None:
             return self.__determine_relative_position(squid_pos, closest_item_pos)
         return 0  # Return 0 if no closest item is found
+    
+    def close(self):
+        self.client.stop()
+        self.listening = False
+        return super().close()
+
+class GameClient:
+    def __init__(self, host='localhost', port=12345):
+        self.host = host
+        self.port = port
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client.connect((self.host, self.port))
+        self.data = None
+        self.running = True
+
+    def send_data(self, data):        
+        json_data = json.dumps(data)
+        self.client.send(json_data.encode('utf-8'))
+
+    def receive_data(self):        
+        while self.running:            
+            received = self.client.recv(4096).decode('utf-8')
+            if not received:
+                break            
+            self.data = json.loads(received)
+            
+
+    def start(self):
+        self.thread = threading.Thread(target=self.receive_data)
+        self.thread.start()
+        
+
+    def stop(self):
+        self.running = False
+        self.thread.join()        
+        self.client.close()

@@ -9,18 +9,11 @@ class QLearningTable:
         self.gamma=reward_decay
         self.epsilon=e_greedy
 
-        self.q_table=pd.DataFrame(columns=self.actions,dtype=np.float64)
-        #print(self.q_table)
-        print("222")
-        print(self.q_table)
-        self.q_table.to_pickle('.\\qtable.pickle')
-
-        self.q_table =pd.read_pickle('.\\qtable.pickle')
-        print("333")
+        self.q_table=pd.DataFrame(columns=self.actions,dtype=np.float64)                
     
     def choose_action(self,observation):
         self.check_state_exist(observation)
-
+        
         #action selection
         if np.random.uniform()>self.epsilon:
             state_action =self.q_table.loc[observation,:]
