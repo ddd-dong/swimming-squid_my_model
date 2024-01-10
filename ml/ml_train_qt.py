@@ -17,7 +17,7 @@ class MLPlay:
         folder_path = './save'
         os.makedirs(folder_path, exist_ok=True)
 
-        keep_training = True
+        keep_training = False
         if keep_training:
             self.QT.q_table =pd.read_pickle('.\\save\\qtable.pickle')
         else:

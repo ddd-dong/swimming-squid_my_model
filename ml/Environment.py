@@ -73,7 +73,7 @@ class Environment():
         food_direction = self.__get_direction_to_nearest(squid_pos, all_food_pos) if all_food_pos else 0
         garbage_direction = self.__get_direction_to_nearest(squid_pos, all_garbage_pos) if all_garbage_pos else 0
 
-        return food_direction * 5 + garbage_direction
+        return [food_direction, garbage_direction]
     
     def __get_reward(self, action: int , observation: int):
         """

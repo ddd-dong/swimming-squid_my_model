@@ -31,6 +31,7 @@ class MLPlay:
 
 
         self.state_ = [observation]
+        print(self.state)
         action = self.QT.choose_action(str(self.state))                
 
         self.state = self.state_
