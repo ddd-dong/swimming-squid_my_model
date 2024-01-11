@@ -14,8 +14,4 @@ if __name__ == '__main__':
     while True:
         action, _states = model.predict(observation)
         observation, reward, terminated, truncated, info = env.step(action)
-        
-        if terminated or truncated:
-            print("end")
-            env.close()
-            break
+                

@@ -54,7 +54,7 @@ class Environment():
 
         return observation, reward, done, info
     
-    def __get_obs(self, scene_info):
+    def __get_obs(self, scene_info):                                             
         """
         Processes the environmental information to generate an observation.
 
@@ -62,7 +62,9 @@ class Environment():
         scene_info (dict): A dictionary containing information about the environment.
 
         Returns:
-        int: The computed observation state based on the environment.
+        OrderedDict: A dictionary with computed observation states based on the environment.
+                     Keys: 'food_direction', 'garbage_direction'.
+                     Values: The directions to the nearest food and garbage (or 0 if none are present).
         """
         FOOD_TYPES = ["FOOD_1", "FOOD_2", "FOOD_3"]
         GARBAGE_TYPES = ["GARBAGE_1", "GARBAGE_2", "GARBAGE_3"]
@@ -71,10 +73,11 @@ class Environment():
         all_food_pos = [[food["x"], food["y"]] for food in scene_info["foods"] if food["type"] in FOOD_TYPES]
         all_garbage_pos = [[food["x"], food["y"]] for food in scene_info["foods"] if food["type"] in GARBAGE_TYPES]
         
-        
+        # Compute the direction to the nearest food and garbage, or 0 if none are present
         food_direction = self.__get_direction_to_nearest(squid_pos, all_food_pos) if all_food_pos else 0
         garbage_direction = self.__get_direction_to_nearest(squid_pos, all_garbage_pos) if all_garbage_pos else 0
 
+        # Return an ordered dictionary containing the computed directions        
         return OrderedDict([('food_direction', food_direction), ('garbage_direction', garbage_direction)])
     
     def __get_reward(self, action: int , observation: int):
@@ -89,7 +92,7 @@ class Environment():
         int: The calculated reward based on the action and observation.
         """
         reward = self.scene_info["score"] - self.pre_reward
-        self.pre_reward = self.scene_info["score"]
+        self.pre_reward = self.scene_info["score"]        
         return reward
         
     def __calculate_distance(self, point1: list, point2: list)->float:

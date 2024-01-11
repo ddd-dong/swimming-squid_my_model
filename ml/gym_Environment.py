@@ -20,7 +20,7 @@ class Environment(gym.Env):
             }
         )
         
-        self.action_space = spaces.Discrete(5)     
+        self.action_space = spaces.Discrete(5)
         
         self.action_mapping =  [["UP"], ["DOWN"], ["LEFT"], ["RIGHT"],["NONE"]]
 
@@ -30,16 +30,16 @@ class Environment(gym.Env):
         self.action = 0
         self.observation = 0
         
-        self.client = GameClient()        
-        self.client.send_data({"command": self.action_mapping.index(["NONE"])})
+        self.client = GameClient()                
         self.client.start()
+        self.client.send_data({"command": self.action_mapping.index(["NONE"])})
           
     def step(self, action):              
         reward = 0
         
         self.client.send_data({"command": int(action)})
-        scene_info = self.__get_scene_info()
-        observation = self.__get_obs(scene_info)
+        self.scene_info = self.__get_scene_info()
+        observation = self.__get_obs(self.scene_info)
         
         reward = self.__get_reward(action, observation)
         
@@ -48,15 +48,28 @@ class Environment(gym.Env):
             
         else:
             terminated = 0
-        truncated = 0
-  
-        
+        truncated = 0          
         
         info = {}
         
         return observation, reward, terminated, truncated, info
     
-    def reset(self, seed=None, options=None):            
+    def reset(self, seed=None, options=None):
+        """
+        Reset the environment for a new episode.
+
+        This function sends a "NONE" action command to the client, retrieves the scene information,
+        and generates an initial observation based on the environment.
+
+        Parameters:
+        seed (int or None): A random seed for environment initialization (optional).
+        options (dict or None): Additional options for environment initialization (optional).
+
+        Returns:
+        OrderedDict: An initial observation containing directions to the nearest food and garbage.
+                    Keys: 'food_direction', 'garbage_direction'.
+                    Values: The directions to the nearest food and garbage (or 0 if none are present).
+        """ 
         self.client.send_data({"command": self.action_mapping.index(["NONE"])})
         self.scene_info = self.__get_scene_info()
         observation = self.__get_obs(self.scene_info)
@@ -66,11 +79,22 @@ class Environment(gym.Env):
         return observation, info
     
     def __get_scene_info(self):
-        while True:
-            if self.client.data != None:
-                scene_info = self.client.data
-                self.client.data = None
-                return scene_info
+        """
+        Wait for and retrieve scene information from the client.
+
+        This function will wait until `self.client.data` is not None and then
+        retrieve the scene information. After retrieval, it sets `self.client.data`
+        back to None for future use.
+
+        Returns:
+        dict: A dictionary containing information about the scene.
+        """
+        while self.client.data is None:
+            pass
+        
+        scene_info = self.client.data
+        self.client.data = None
+        return scene_info
 
     # 設定Observation
     ### to do            
@@ -82,7 +106,9 @@ class Environment(gym.Env):
         scene_info (dict): A dictionary containing information about the environment.
 
         Returns:
-        int: The computed observation state based on the environment.
+        OrderedDict: A dictionary with computed observation states based on the environment.
+                     Keys: 'food_direction', 'garbage_direction'.
+                     Values: The directions to the nearest food and garbage (or 0 if none are present).
         """
         FOOD_TYPES = ["FOOD_1", "FOOD_2", "FOOD_3"]
         GARBAGE_TYPES = ["GARBAGE_1", "GARBAGE_2", "GARBAGE_3"]
@@ -91,10 +117,11 @@ class Environment(gym.Env):
         all_food_pos = [[food["x"], food["y"]] for food in scene_info["foods"] if food["type"] in FOOD_TYPES]
         all_garbage_pos = [[food["x"], food["y"]] for food in scene_info["foods"] if food["type"] in GARBAGE_TYPES]
         
-        
+        # Compute the direction to the nearest food and garbage, or 0 if none are present
         food_direction = self.__get_direction_to_nearest(squid_pos, all_food_pos) if all_food_pos else 0
         garbage_direction = self.__get_direction_to_nearest(squid_pos, all_garbage_pos) if all_garbage_pos else 0
 
+        # Return an ordered dictionary containing the computed directions
         return OrderedDict([('food_direction', food_direction), ('garbage_direction', garbage_direction)])
         
 
@@ -112,7 +139,7 @@ class Environment(gym.Env):
         int: The calculated reward based on the action and observation.
         """
         reward = self.scene_info["score"] - self.pre_reward
-        self.pre_reward = self.scene_info["score"]
+        self.pre_reward = self.scene_info["score"]        
         return reward
 
     def __calculate_distance(self, point1: list, point2: list)->float:
@@ -210,18 +237,34 @@ class Environment(gym.Env):
 
 class GameClient:
     def __init__(self, host='localhost', port=12345):
+        """
+        Initialize the GameClient.
+
+        Parameters:
+        host (str): The hostname or IP address of the server (default is 'localhost').
+        port (int): The port number to connect to (default is 12345).
+        """
         self.host = host
         self.port = port
-        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client.connect((self.host, self.port))
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)        
         self.data = None
         self.running = True
+        self.thread = None
 
     def send_data(self, data):        
+        """
+        Send data to the server.
+
+        Parameters:
+        data (dict): The data to be sent in dictionary format.
+        """
         json_data = json.dumps(data)
         self.client.send(json_data.encode('utf-8'))
 
-    def receive_data(self):        
+    def receive_data(self):       
+        """
+        Receive data from the server and update self.data.
+        """ 
         while self.running:            
             received = self.client.recv(4096).decode('utf-8')
             if not received:
@@ -230,11 +273,20 @@ class GameClient:
             
 
     def start(self):
+        """
+        Start the client thread to receive data from the server.
+        """
+        self.running = True
+        self.client.connect((self.host, self.port))
         self.thread = threading.Thread(target=self.receive_data)
         self.thread.start()
         
 
     def stop(self):
+        """
+        Stop the client and close the connection.
+        """
         self.running = False
-        self.thread.join()        
+        if self.thread:            
+            self.thread.join()        
         self.client.close()

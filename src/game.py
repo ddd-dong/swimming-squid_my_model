@@ -257,7 +257,8 @@ class SwimmingSquid(PaiaGame):
         star_string = '+' * self.squid.lv
         toggle_objs = [
             create_text_view_data(f"Squid Lv: {star_string}", 705, 50, "#EEEEEE", "20px Consolas BOLD"),
-            create_text_view_data(f"To Lv up: {LEVEL_THRESHOLDS[self.squid.lv - 1]-self.squid.score :04d} pt", 705, 80, "#EEEEEE",                                  "20px Consolas BOLD"),
+            create_text_view_data(f"To Lv up: {LEVEL_THRESHOLDS[self.squid.lv - 1] - self.squid.score :04d} pt", 705,
+                                  80, "#EEEEEE", "20px Consolas BOLD"),
             create_text_view_data(f"Vel     : {self.squid.vel:4d}", 705, 110, "#EEEEEE", "20px Consolas BOLD"),
             create_text_view_data(f"Timer   : {self._frame_count_down:04d}", 705, 150, "#EEEEEE", "20px Consolas BOLD"),
             create_text_view_data(f"My Score: {self.squid.score:04d} pt", 705, 180, "#EEEEEE", "20px Consolas BOLD"),
@@ -311,9 +312,15 @@ class SwimmingSquid(PaiaGame):
         for i in range(count):
             # add food to group
             food = FOOD_TYPE(self.foods)
-            food.set_center_x_and_y(
-                random.randint(self.playground.left, self.playground.right),
-                random.randint(self.playground.top, self.playground.bottom)
-            )
+            if isinstance(food, Garbage):
+                food.set_center_x_and_y(
+                    random.randint(self.playground.left, self.playground.right),
+                    self.playground.top-10
+                )
+            else:
+                food.set_center_x_and_y(
+                    random.choice([self.playground.left-10, self.playground.right+10]),
+                    random.randint(self.playground.top, self.playground.bottom)
+                )
 
         pass

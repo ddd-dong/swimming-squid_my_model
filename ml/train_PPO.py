@@ -7,10 +7,10 @@ if __name__ == '__main__':
     folder_path = './save'
     os.makedirs(folder_path, exist_ok=True)
 
-    env = env()
+    env = env()    
     # model = PPO("MlpPolicy", env, verbose=1)         # 如果obs使用Discrete 用這個
     model = PPO("MultiInputPolicy", env, verbose=1)    # 如果obs使用Dict 用這個
-    model.learn(total_timesteps=1, log_interval=1)
+    model.learn(total_timesteps=100_000, log_interval=1)
 
     model.save("../save/model_PPO")
     print("model save")

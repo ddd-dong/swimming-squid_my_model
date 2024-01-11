@@ -15,4 +15,4 @@ if __name__ == '__main__':
     model.save("../save/model_DQN")
     print("model save")    
     env.close()
-    print("DPN end")
+    print("DQN end")
