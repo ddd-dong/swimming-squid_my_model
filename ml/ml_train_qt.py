@@ -11,6 +11,8 @@ class MLPlay:
         self.state = [self.env.observation]    
         self.state_ = [self.env.observation]   
         self.status = "GAME_ALIVE"         
+        self.max_step = 2500
+        self.step = 0
         
         self.QT = QLearningTable(actions=list(range(self.env.n_actions)))
         
@@ -29,6 +31,11 @@ class MLPlay:
         """
         Generate the command according to the received scene information
         """
+        if self.step > self.max_step:
+            print("---------------- Training is over --------------------.")
+            exit()
+        self.step += 1
+        
         self.env.set_scene_info(scene_info)        
         observation, reward, done, info = self.env.step(self.action)
 
@@ -50,6 +57,7 @@ class MLPlay:
         Reset the status
         """
         print("reset ml script")
+        print("step:", self.step)
         self.QT.q_table.to_pickle('.\\save\\qtable.pickle')
         self.env.reset()
         pass
