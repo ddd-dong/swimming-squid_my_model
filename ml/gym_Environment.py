@@ -202,12 +202,12 @@ class Environment(gym.Env):
             if delta_x - delta_y > 0:
                 return 1  # Right
             else:
-                return 2  # Up
+                return 4  # Up
         else:
             if delta_x - delta_y > 0:
-                return 3  # Down
+                return 2  # Down
             else:
-                return 4  # Left
+                return 3  # Left
             
     def __get_direction_to_nearest(self, squid_pos: list, items_pos: list) -> int:
         """

@@ -7,7 +7,7 @@ class Environment():
         self.n_actions = len(self.action_mapping)
         
         self.action = 0 
-        self.observation = 0
+        self.observation = OrderedDict([('food_direction', 0), ('garbage_direction', 0)])
         self.pre_reward = 0
     
     def set_scene_info(self, Scene_info: dict):
@@ -155,12 +155,12 @@ class Environment():
             if delta_x - delta_y > 0:
                 return 1  # Right
             else:
-                return 2  # Up
+                return 4  # Up
         else:
             if delta_x - delta_y > 0:
-                return 3  # Down
+                return 2  # Down
             else:
-                return 4  # Left
+                return 3  # Left
     
     def __get_direction_to_nearest(self, squid_pos: list, items_pos: list) -> int:
         """
