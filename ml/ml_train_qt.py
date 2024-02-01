@@ -11,31 +11,23 @@ class MLPlay:
         self.state = [self.env.observation]    
         self.state_ = [self.env.observation]   
         self.status = "GAME_ALIVE"         
-        self.max_step = 2500
-        self.step = 0
         
-        self.QT = QLearningTable(actions=list(range(self.env.n_actions)))
-        
+        self.QT = QLearningTable(actions=list(range(self.env.n_actions)))        
         folder_path = './save'
         os.makedirs(folder_path, exist_ok=True)
 
-        keep_training = False
+        keep_training = True
         if keep_training:
-            self.QT.q_table =pd.read_pickle('.\\save\\qtable.pickle')
+            self.QT.q_table =pd.read_pickle('.\\ml\\save\\qtable.pickle')
         else:
-            self.QT.q_table.to_pickle('.\\save\\qtable.pickle')
+            self.QT.q_table.to_pickle('.\\ml\\save\\qtable.pickle')
                 
         print("Initial ml script")
 
     def update(self, scene_info: dict, *args, **kwargs):
         """
         Generate the command according to the received scene information
-        """
-        if self.step > self.max_step:
-            print("---------------- Training is over --------------------.")
-            exit()
-        self.step += 1
-        
+        """        
         self.env.set_scene_info(scene_info)        
         observation, reward, done, info = self.env.step(self.action)
 
@@ -56,8 +48,7 @@ class MLPlay:
         """
         Reset the status
         """
-        print("reset ml script")
-        print("step:", self.step)
-        self.QT.q_table.to_pickle('.\\save\\qtable.pickle')
+        print("reset ml script")        
+        self.QT.q_table.to_pickle('.\\ml\\save\\qtable.pickle')
         self.env.reset()
         pass

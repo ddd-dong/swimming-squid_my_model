@@ -17,9 +17,7 @@ class MLPlay:
         os.makedirs(folder_path, exist_ok=True)
 
 
-        self.QT.q_table =pd.read_pickle('.\\save\\qtable.pickle')
-        
-                
+        self.QT.q_table =pd.read_pickle('.\\ml\\save\\qtable.pickle')                        
         print("Initial ml script")
 
     def update(self, scene_info: dict, *args, **kwargs):
@@ -31,7 +29,7 @@ class MLPlay:
 
 
         self.state_ = [observation]
-        print(self.state)
+        
         action = self.QT.choose_action(str(self.state))                
 
         self.state = self.state_
@@ -45,7 +43,6 @@ class MLPlay:
         """
         Reset the status
         """
-        print("reset ml script")
-        
+        print("reset ml script")        
         self.env.reset()
         pass

@@ -12,7 +12,7 @@ if __name__ == '__main__':
     model = DQN("MultiInputPolicy", env, verbose=1)    # 如果obs使用Dict 用這個
     model.learn(total_timesteps=100_000, log_interval=1)
 
-    model.save("../save/model_DQN")
+    model.save("../ml/save/model_DQN")
     print("model save")    
     env.close()
     print("DQN end")

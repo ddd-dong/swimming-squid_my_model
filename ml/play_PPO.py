@@ -8,7 +8,7 @@ from gym_Environment import Environment as env
 
 if __name__ == '__main__':
     env = env()
-    model = PPO.load("../save/model_PPO")
+    model = PPO.load("../ml/save/model_PPO")
     observation, info = env.reset()    
 
     while True:
