@@ -13,10 +13,10 @@ class MLPlay:
         self.status = "GAME_ALIVE"         
         
         self.QT = QLearningTable(actions=list(range(self.env.n_actions)))        
-        folder_path = './save'
+        folder_path = './ml/save'
         os.makedirs(folder_path, exist_ok=True)
 
-        keep_training = True
+        keep_training = False
         if keep_training:
             self.QT.q_table =pd.read_pickle('.\\ml\\save\\qtable.pickle')
         else:

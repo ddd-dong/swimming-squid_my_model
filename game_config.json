@@ -37,6 +37,15 @@
       ],
       "help": "'on' can turn on the sound.",
       "default": "on"
+    },
+    {
+      "name": "contest",
+      "verbose": "競賽模式",
+      "type": "int",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "help": "競賽模式"
     }
   ]
 }

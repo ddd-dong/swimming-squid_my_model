@@ -4,7 +4,7 @@ from stable_baselines3 import DQN
 from gym_Environment import Environment as env
 
 if __name__ == '__main__':
-    folder_path = './save'
+    folder_path = './ml/save'
     os.makedirs(folder_path, exist_ok=True)
     
     env = env()

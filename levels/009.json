@@ -1,12 +1,12 @@
 {
   "time_to_play": 1800,
-  "playground_size_w":600,
-  "playground_size_h":600,
+  "playground_size_w":700,
+  "playground_size_h":700,
   "score_to_pass": 90,
   "food_1": 6,
-  "food_2": 5,
+  "food_2": 4,
   "food_3": 3,
-  "garbage_1": 10,
-  "garbage_2": 10,
-  "garbage_3": 5
+  "garbage_1": 8,
+  "garbage_2": 4,
+  "garbage_3": 2
 }

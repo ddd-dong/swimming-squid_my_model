@@ -11,7 +11,7 @@ from mlgame.view.view_model import *
 from .foods import *
 from .game_object import Squid, LevelParams
 from .sound_controller import SoundController
-
+import time
 
 def revise_ball(ball: Squid, playground: pygame.Rect):
     ball_rect = copy.deepcopy(ball.rect)
@@ -38,6 +38,7 @@ class SwimmingSquid(PaiaGame):
             level: int = -1,
             level_file: str = "",
             sound: str = "off",
+            contest: int = 0,
             *args, **kwargs):
         super().__init__(user_num=1)
         self.game_result_state = GameResultState.FAIL
@@ -46,8 +47,10 @@ class SwimmingSquid(PaiaGame):
         self._level_file = level_file
         self.foods = pygame.sprite.Group()
         self.sound_controller = SoundController(sound)
-
+        self.contest = contest
+        self.timerDuration = 300
         self._init_game()
+        self.start_time  = time.time()
 
     def _init_game_by_file(self, level_file_path: str):
         try:
@@ -94,21 +97,23 @@ class SwimmingSquid(PaiaGame):
         if ai_1p_cmd is not None:
             action = ai_1p_cmd[0]
         else:
-            action = "NONE"
+            action = "NONE"        
+        if(time.time()- self.start_time > self.timerDuration and self.contest):            
+            self.squid.update(["NONE"])
+        else:
+            self.squid.update(action)
+            revise_ball(self.squid, self.playground)
+            # update sprite
+            self.foods.update(playground=self.playground, squid=self.squid)
 
-        self.squid.update(action)
-        revise_ball(self.squid, self.playground)
-        # update sprite
-        self.foods.update(playground=self.playground, squid=self.squid)
+            # handle collision
 
-        # handle collision
+            self._check_foods_collision()
+            # self._timer = round(time.time() - self._begin_time, 3)
 
-        self._check_foods_collision()
-        # self._timer = round(time.time() - self._begin_time, 3)
-
-        self.frame_count += 1
-        self._frame_count_down = self._frame_limit - self.frame_count
-        # self.draw()
+            self.frame_count += 1
+            self._frame_count_down = self._frame_limit - self.frame_count
+            # self.draw()
 
         if not self.is_running:
             return "RESET"
