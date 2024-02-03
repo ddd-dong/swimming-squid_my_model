@@ -16,13 +16,13 @@ class MLPlay:
         Generate the command according to the received scene information
         """       
         action_mapping =  [["UP"], ["DOWN"], ["LEFT"], ["RIGHT"],["NONE"]]
-         
-        if self.server.receive_command != None:
-            command = self.server.receive_command["command"]            
-            self.server.receive_command = None 
-            self.server.send_data(scene_info)
-        else:
-            command = action_mapping.index(["NONE"])
+        
+        while self.server.receive_command  is None:            
+            pass
+
+        command = self.server.receive_command["command"]
+        self.server.receive_command = None 
+        self.server.send_data(scene_info)        
             
 
         
